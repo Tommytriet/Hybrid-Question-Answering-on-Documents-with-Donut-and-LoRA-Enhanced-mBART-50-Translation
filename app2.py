@@ -3,13 +3,13 @@ import torch
 from PIL import Image
 from transformers import VisionEncoderDecoderModel, DonutProcessor
 from transformers import MBartForConditionalGeneration, MBart50TokenizerFast
-
+from peft import PeftModel
 # -----------------------------
 # Load Donut DocVQA
 # -----------------------------
 @st.cache_resource
 def load_donut():
-    donut_model_id = "C:/Users/Admin/streamlit/donut-base-finetuned-docvqa"
+    donut_model_id = "Tommynguyen02/donut-base-finetune"
     processor = DonutProcessor.from_pretrained(donut_model_id)
     model = VisionEncoderDecoderModel.from_pretrained(donut_model_id)
     device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -40,13 +40,25 @@ def donut_qa(image, question_en):
 # -----------------------------
 @st.cache_resource
 def load_mbart():
-    mbart_dir = "Tommynguyen02/mbart50-LoRA"  # đường dẫn model bạn đã fine-tune
-    model = MBartForConditionalGeneration.from_pretrained(mbart_dir)
-    tokenizer = MBart50TokenizerFast.from_pretrained(mbart_dir)
+    base_model_id = "facebook/mbart-large-50-many-to-many-mmt"   # model gốc
+    lora_model_id = "Tommynguyen02/mbart50-LoRA"                 # repo LoRA adapter của bạn
+
+    # Load base model
+    model = MBartForConditionalGeneration.from_pretrained(base_model_id)
+
+    # Gắn LoRA adapter
+    model = PeftModel.from_pretrained(model, lora_model_id)
+
+    # Load tokenizer từ base model
+    tokenizer = MBart50TokenizerFast.from_pretrained(base_model_id)
+
+    # Chọn thiết bị
     device = "cuda" if torch.cuda.is_available() else "cpu"
     model.to(device)
+
     return tokenizer, model, device
 
+# Load model + tokenizer
 trans_tokenizer, trans_model, device = load_mbart()
 
 def vi_to_en(text):
