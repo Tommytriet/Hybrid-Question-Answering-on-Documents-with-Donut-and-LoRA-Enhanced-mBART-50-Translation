@@ -9,7 +9,7 @@ from peft import PeftModel
 # -----------------------------
 @st.cache_resource
 def load_donut():
-    donut_model_id = "Tommynguyen02/donut-base-finetune"
+    donut_model_id = "naver-clova-ix/donut-base-finetuned-docvqa"
     processor = DonutProcessor.from_pretrained(donut_model_id)
     model = VisionEncoderDecoderModel.from_pretrained(donut_model_id)
     device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -116,6 +116,7 @@ if uploaded_file:
                 "Answer (EN)": answer_en,
                 "Trả lời (VI)": answer_vi
             })
+
 
 
 
