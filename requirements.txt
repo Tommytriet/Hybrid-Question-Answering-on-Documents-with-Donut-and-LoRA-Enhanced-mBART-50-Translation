@@ -4,6 +4,9 @@ transformers==4.47.0
 peft
 safetensors
 Pillow
+sentencepiece
+accelerate
+protobuf
 
 
 
